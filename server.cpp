@@ -9,46 +9,66 @@
 #include <Windows.h>
 #include <in6addr.h>
 #include <WS2tcpip.h>
-#include<ws2def.h>
+#include <ws2def.h>
 int main()
 {
     WSAData wsaData;
-    WORD version=MAKEWORD(2,2);
-    if (WSAStartup(version,&wsaData)!=0)
+    WORD version = MAKEWORD(2, 2);
+    if (WSAStartup(version, &wsaData) != 0)
     {
-        std::cout<<"couldnt start WSA"<<std::endl;
+        std::cout << "couldnt start WSA" << std::endl;
         return 1;
     }
-    else 
+    else
     {
-        std::cout<<"Winsock dll found"<<std::endl;
+        std::cout << "Winsock dll found" << std::endl;
     }
-    SOCKET sock=socket(AF_INET,SOCK_STREAM,IPPROTO_TCP);
-    if (sock==INVALID_SOCKET)
-    {   
-        std::cout<<"Problem with socket"<<std::endl;
+    SOCKET sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if (sock == INVALID_SOCKET)
+    {
+        std::cout << "Problem with socket" << std::endl;
         WSACleanup();
         return 2;
     }
-    else 
+    else
     {
-        std::cout<<"Socket is setup"<<std::endl;
+        std::cout << "Socket is setup" << std::endl;
     }
     sockaddr_in adr;
-    adr.sin_family=AF_INET;
-    adr.sin_addr.s_addr=inet_addr("127.0.0.1");
-    adr.sin_port=htons(29171);
-    if (bind(sock,(SOCKADDR*)&adr,sizeof(adr))==SOCKET_ERROR)
+    adr.sin_family = AF_INET;
+    adr.sin_addr.s_addr = inet_addr("127.0.0.1"); // leko sus
+    adr.sin_port = htons(29171);
+    if (bind(sock, (SOCKADDR *)&adr, sizeof(adr)) == SOCKET_ERROR)
     {
-        std::cout<<"Bind failed"<<std::endl;
+        std::cout << "Bind failed" << std::endl;
         closesocket(sock);
         WSACleanup();
         return 3;
-    } 
-    else 
-    {
-        std::cout<<"Socket is bound"<<std::endl;
     }
-    
+    else
+    {
+        std::cout << "Socket is bound" << std::endl;
+    }
+    if (listen(sock, 5) == SOCKET_ERROR)
+    {
+        std::cout << "Couldn't listen" << std::endl;
+        WSACleanup();
+        return 4;
+    }
+    else
+    {
+        std::cout << "Server is listening...." << std::endl;
+    }
+    SOCKET acceptSock = accept(sock, NULL, NULL);
+    if (acceptSock == INVALID_SOCKET)
+    {
+        std::cout << "Error in accept()" << std::endl;
+        WSACleanup();
+        return 5;
+    }
+    else
+    {
+        std::cout << "Accepted connection" << std::endl;
+    }
     return 0;
 }
