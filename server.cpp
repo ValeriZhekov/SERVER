@@ -1,13 +1,10 @@
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
+
 #pragma comment(lib, "ws2_32.lib")
-#include <iostream>
-#include <mutex>
-#include <thread>
-#include <chrono>
-#include <condition_variable>
 #include <WinSock2.h>
 #include <stdio.h>
+#include <iostream>
 #include <stdlib.h>
 #include <Windows.h>
 #include <in6addr.h>
@@ -47,6 +44,11 @@ int main()
         closesocket(sock);
         WSACleanup();
         return 3;
+    } 
+    else 
+    {
+        std::cout<<"Socket is bound"<<std::endl;
     }
+    
     return 0;
 }

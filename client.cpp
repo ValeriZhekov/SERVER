@@ -5,6 +5,6 @@
 #include <condition_variable>
 int main()
 {
-    
+    std::cout<<"dasdas";
     return 0;
 }
