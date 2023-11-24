@@ -70,5 +70,7 @@ int main()
     {
         std::cout << "Accepted connection" << std::endl;
     }
+    closesocket(sock);
+    WSACleanup();
     return 0;
 }
