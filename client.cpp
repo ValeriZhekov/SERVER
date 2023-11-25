@@ -10,6 +10,8 @@
 #include <in6addr.h>
 #include <WS2tcpip.h>
 #include <ws2def.h>
+#include "point3D.hpp"
+#include <cmath>
 int main()
 {
     WSAData wsaData;
@@ -47,6 +49,34 @@ int main()
     else
     {
         std::cout<<"Connected, can start sending and reveiving data"<<std::endl;
+    }
+    Points3D points;
+    std::cout<<"Enter A: "<<std::endl;
+    std::cin>>points.x1>>points.y1>>points.z1;
+    std::cout<<"Enter B:"<<std::endl;
+    std::cin>>points.x2>>points.y2>>points.z2;
+    int bytes=send(sock,(char*)&points,sizeof(Points3D),0);
+    if (bytes==SOCKET_ERROR)
+    {
+        std::cout<<"Couldn't send data"<<std::endl;
+        WSACleanup();
+        return 4;
+    }
+    else 
+    {
+        std::cout<<"Data has been sent"<<std::endl;
+    }
+    double dist;
+    bytes=recv(sock,(char*)&dist,sizeof(double),0);
+    if (bytes==SOCKET_ERROR)
+    {
+        std::cout<<"Couldn't get distance"<<std::endl;
+        WSACleanup();
+        return 5;
+    }
+    else 
+    {
+        std::cout<<"Distance between A and B is "<<dist<<std::endl;
     }
     closesocket(sock);
     WSACleanup();
