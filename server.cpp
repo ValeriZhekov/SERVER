@@ -80,6 +80,10 @@ void toRun(int array[], size_t size) // izpulnqva se ot vsqka nishka (vsqka ima 
     lock.unlock();
     size_t start = threadNum * (size / MAXTHREADS);
     size_t end = (threadNum + 1) * (size / MAXTHREADS) - 1;
+    if (threadNum==MAXTHREADS-1)
+    {
+        end=size-1;
+    }
     size_t mid = start + (end - start) / 2;
     if (start < end)
     {
@@ -100,9 +104,9 @@ void fastMergeSort(int arr[],size_t size)
         threadVector[i].join();
     }
     //obedinqvame 4ti chasti ot masiva, koito veche sa sortirani
-    merge(arr, 0, (size / 2 - 1) / 2, size / 2 - 1); // za 4 nishki
-    merge(arr, size / 2, size / 2 + (size - 1 - size / 2) / 2, size - 1);
-    merge(arr, 0, (size - 1) / 2, size - 1);
+     merge(arr, 0, size/4-1, 2*(size / 4) - 1); // za 4 nishki
+     merge(arr, 2*(size / 4), 3*(size / 4) - 1, size - 1);
+     merge(arr, 0, 2*(size/4) -1, size - 1); 
 
 }
 int main()
