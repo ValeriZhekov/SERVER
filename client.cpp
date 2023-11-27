@@ -51,7 +51,7 @@ int main()
     {
         std::cout << "Connected, can start sending and reveiving data" << std::endl;
     }
-    size_t size=900;
+    size_t size=878;
     int *arr=new int[size];
     for (size_t i=0; i < size; i++)
     {
