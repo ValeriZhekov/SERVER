@@ -10,8 +10,9 @@
 #include <in6addr.h>
 #include <WS2tcpip.h>
 #include <ws2def.h>
-#include "point3D.hpp"
 #include <cmath>
+#include <vector>
+#include "data.hpp"
 int main()
 {
     WSAData wsaData;
@@ -40,45 +41,66 @@ int main()
     adr.sin_family = AF_INET;
     adr.sin_addr.s_addr = inet_addr("127.0.0.1"); // leko sus
     adr.sin_port = htons(29171);
-    if (connect(sock,(SOCKADDR*)&adr,sizeof(adr))==SOCKET_ERROR)
+    if (connect(sock, (SOCKADDR *)&adr, sizeof(adr)) == SOCKET_ERROR)
     {
-        std::cout<<"Failed to connect"<<std::endl;
+        std::cout << "Failed to connect" << std::endl;
         WSACleanup();
         return 3;
     }
     else
     {
-        std::cout<<"Connected, can start sending and reveiving data"<<std::endl;
+        std::cout << "Connected, can start sending and reveiving data" << std::endl;
     }
-    Points3D points;
-    std::cout<<"Enter A: "<<std::endl;
-    std::cin>>points.x1>>points.y1>>points.z1;
-    std::cout<<"Enter B:"<<std::endl;
-    std::cin>>points.x2>>points.y2>>points.z2;
-    int bytes=send(sock,(char*)&points,sizeof(Points3D),0);
-    if (bytes==SOCKET_ERROR)
+    size_t size=80;
+    int *arr=new int[size];
+    for (size_t i=0; i < size; i++)
     {
-        std::cout<<"Couldn't send data"<<std::endl;
+        arr[i]=rand()%200-100;
+    }
+    data a(arr,size);
+    for (size_t i=0; i < size; i++)
+        {
+            std::cout << a.array[i] << " ";
+        }
+    int bytes = send(sock,(char*)&size,sizeof(size_t), 0);
+    if (bytes == SOCKET_ERROR)
+    {
+        std::cout << "Couldn't send size of array" << std::endl;
         WSACleanup();
         return 4;
     }
-    else 
+    else
     {
-        std::cout<<"Data has been sent"<<std::endl;
+        std::cout << "Size of array has been sent" << std::endl;
     }
-    double dist;
-    bytes=recv(sock,(char*)&dist,sizeof(double),0);
-    if (bytes==SOCKET_ERROR)
+    bytes = send(sock, (char*)&a, sizeof(data), 0);
+    if (bytes == SOCKET_ERROR)
     {
-        std::cout<<"Couldn't get distance"<<std::endl;
+        std::cout << "Couldn't send array" << std::endl;
+        WSACleanup();
+        return 4;
+    }
+    else
+    {
+        std::cout << "Array has been sent" << std::endl;
+    }
+    bytes = recv(sock, (char*)&a, sizeof(data), 0);
+    if (bytes == SOCKET_ERROR)
+    {
+        std::cout << "Couldn't get sorted array" << std::endl;
         WSACleanup();
         return 5;
     }
-    else 
+    else
     {
-        std::cout<<"Distance between A and B is "<<dist<<std::endl;
-    }
+        std::cout << "Sorted array: " << std::endl;
+        for (size_t i=0; i < size; i++)
+        {
+            std::cout << a.array[i] << " ";
+        }
+    } 
+   
     closesocket(sock);
     WSACleanup();
-return 0;
+    return 0;
 }

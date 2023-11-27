@@ -1,4 +1,4 @@
-gcc server.cpp -o server.exe -lstdc++  -lws2_32
+gcc server.cpp -o server.exe -lstdc++  -lws2_32 -pthread
 accept chaka za connect
 recv i send blockvat maina do izpulnenie
 dobavi i -pthread
