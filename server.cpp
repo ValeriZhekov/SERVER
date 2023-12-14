@@ -80,9 +80,9 @@ void toRun(int array[], size_t size) // izpulnqva se ot vsqka nishka (vsqka ima 
     lock.unlock();
     size_t start = threadNum * (size / MAXTHREADS);
     size_t end = (threadNum + 1) * (size / MAXTHREADS) - 1;
-    if (threadNum==MAXTHREADS-1)
+    if (threadNum == MAXTHREADS - 1)
     {
-        end=size-1;
+        end = size - 1;
     }
     size_t mid = start + (end - start) / 2;
     if (start < end)
@@ -92,22 +92,21 @@ void toRun(int array[], size_t size) // izpulnqva se ot vsqka nishka (vsqka ima 
         merge(array, start, mid, end);
     }
 }
-void fastMergeSort(int arr[],size_t size)
+void fastMergeSort(int arr[], size_t size)
 {
     std::vector<std::thread> threadVector;
-    for (size_t i = 0; i < MAXTHREADS; i++) //izpulnqvame nishkite
+    for (size_t i = 0; i < MAXTHREADS; i++) // izpulnqvame nishkite
     {
         threadVector.emplace_back(std::thread(toRun, arr, size));
     }
-    for (size_t i = 0; i < MAXTHREADS; i++) //izchakvame da zavurshat
+    for (size_t i = 0; i < MAXTHREADS; i++) // izchakvame da zavurshat
     {
         threadVector[i].join();
     }
-    //obedinqvame 4ti chasti ot masiva, koito veche sa sortirani
-     merge(arr, 0, size/4-1, 2*(size / 4) - 1); // za 4 nishki
-     merge(arr, 2*(size / 4), 3*(size / 4) - 1, size - 1);
-     merge(arr, 0, 2*(size/4) -1, size - 1); 
-
+    // obedinqvame 4ti chasti ot masiva, koito veche sa sortirani
+    merge(arr, 0, size / 4 - 1, 2 * (size / 4) - 1); // za 4 nishki
+    merge(arr, 2 * (size / 4), 3 * (size / 4) - 1, size - 1);
+    merge(arr, 0, 2 * (size / 4) - 1, size - 1);
 }
 int main()
 {
@@ -170,54 +169,73 @@ int main()
         std::cout << "Accepted connection" << std::endl;
     }
     size_t size;
-    int bytes=recv(acceptSock,(char*)&size,sizeof(size_t),0);
-    if (bytes==SOCKET_ERROR)
+    int bytes = recv(acceptSock, (char *)&size, sizeof(size_t), 0);
+    if (bytes == SOCKET_ERROR)
     {
-        std::cout<<"Couldn't get size"<<std::endl;
+        std::cout << "Couldn't get size" << std::endl;
         WSACleanup();
         return 6;
     }
-    else 
+    else
     {
-        std::cout<<"Size of array is: "<<size<<std::endl;
+        std::cout << "Size of array is: " << size << std::endl;
     }
-    
-    data a;
-    bytes=recv(acceptSock,(char*)&a,sizeof(data),0);
-    if (bytes==SOCKET_ERROR)
+    size_t DataBits = ceil(double(size) / 1000);
+    data *msg = new data[DataBits];
+    for (size_t i = 0; i < DataBits; i++)
     {
-        std::cout<<"Couldn't get array"<<std::endl;
-        WSACleanup();
-        return 6;
-    }
-    else 
-    {
-        std::cout<<"Got array"<<std::endl;
-    }
-    for (size_t i=0; i < size; i++)
+        bytes = recv(acceptSock, (char *)&msg[i], sizeof(data), 0);
+        if (bytes == SOCKET_ERROR)
         {
-            std::cout << a.array[i] << " ";
+            std::cout << "Couldn't get msg num: " << i << std::endl;
+            WSACleanup();
+            return 6;
         }
-    clock_t t1,t2;
-    t1=clock();
-    fastMergeSort(a.array,size);
-    t2=clock();
-    std::cout <<std::endl<< "Sort time: " << (t2 - t1) / (double)CLOCKS_PER_SEC << std::endl; 
-    for (size_t i=0; i < size; i++)
+        else
         {
-            std::cout << a.array[i] << " ";
+            std::cout << "Got msg num: " << i << std::endl;
         }
-        
-    bytes=send(acceptSock,(char*)&a,sizeof(data),0);
-    if (bytes==SOCKET_ERROR)
-    {
-        std::cout<<"Couldn't send sorted array"<<std::endl;
-        WSACleanup();
-        return 7;
     }
-    else 
+    int n = 1000, *arr = new int[size];
+    for (size_t i = 0; i < DataBits; i++)
     {
-        std::cout<<"Sorted array has been sent"<<std::endl;
+        if (i == DataBits - 1)
+        {
+            n = size % 1000;
+        }
+        for (int j = 0; j < n; j++)
+        {
+            arr[i * 1000 + j] = msg[i].array[j];
+        }
+    }
+    clock_t t1, t2;
+    t1 = clock();
+    fastMergeSort(arr, size);
+    t2 = clock();
+    std::cout << std::endl
+              << "Sort time: " << (t2 - t1) / (double)CLOCKS_PER_SEC << std::endl;
+    int j = 1000;
+    for (size_t i = 0; i < DataBits; i++)
+    {
+        if (i == DataBits - 1)
+        {
+            j = size % 1000;
+        }
+        msg[i] = data(arr + i * 1000, j);
+    }
+    for (size_t i = 0; i < DataBits; i++)
+    {
+        bytes = send(acceptSock, (char *)&msg[i], sizeof(data), 0);
+        if (bytes == SOCKET_ERROR)
+        {
+            std::cout << "Couldn't send sorted array num:" << i << std::endl;
+            WSACleanup();
+            return 7;
+        }
+        else
+        {
+            std::cout << "Sorted array num: " << i << " has been sent" << std::endl;
+        }
     }
     closesocket(sock);
     WSACleanup();

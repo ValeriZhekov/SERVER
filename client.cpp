@@ -51,18 +51,40 @@ int main()
     {
         std::cout << "Connected, can start sending and reveiving data" << std::endl;
     }
-    size_t size=984;
-    int *arr=new int[size];
-    for (size_t i=0; i < size; i++)
+    size_t size = 12199;
+    int *arr = new int[size];
+    for (size_t i = 0; i < size; i++)
     {
-        arr[i]=rand()%200-100;
+        arr[i] = rand() % 1000 - 500;
+        std::cout<<arr[i]<<" ";
     }
-    data a(arr,size);
-    for (size_t i=0; i < size; i++)
+    size_t DataBits = ceil(double(size) / 1000);
+    std::cout << "N: " << DataBits << std::endl;
+    data *msg = new data[DataBits];
+    int j = 1000;
+    for (size_t i = 0; i < DataBits; i++)
+    {
+        if (i ==DataBits - 1)
         {
-            std::cout << a.array[i] << " ";
+            j = size % 1000;
         }
-    int bytes = send(sock,(char*)&size,sizeof(size_t), 0);
+        msg[i] = data(arr + i * 1000, j);
+    }
+    int n = 1000;
+    std::cout << "array: " << std::endl;
+    for (size_t i = 0; i < DataBits; i++)
+    {
+        if (i == DataBits - 1)
+        {
+            n = size % 1000;
+        }
+        for (int j = 0; j < n; j++)
+        {
+            std::cout << msg[i].array[j] << " ";
+        }
+    }
+    std::cout<<std::endl;
+    int bytes = send(sock, (char *)&size, sizeof(size_t), 0);
     if (bytes == SOCKET_ERROR)
     {
         std::cout << "Couldn't send size of array" << std::endl;
@@ -73,33 +95,47 @@ int main()
     {
         std::cout << "Size of array has been sent" << std::endl;
     }
-    bytes = send(sock, (char*)&a, sizeof(data), 0);
-    if (bytes == SOCKET_ERROR)
+    for (int i = 0; i < DataBits; i++)
     {
-        std::cout << "Couldn't send array" << std::endl;
-        WSACleanup();
-        return 4;
-    }
-    else
-    {
-        std::cout << "Array has been sent" << std::endl;
-    }
-    bytes = recv(sock, (char*)&a, sizeof(data), 0);
-    if (bytes == SOCKET_ERROR)
-    {
-        std::cout << "Couldn't get sorted array" << std::endl;
-        WSACleanup();
-        return 5;
-    }
-    else
-    {
-        std::cout << "Sorted array: " << std::endl;
-        for (size_t i=0; i < size; i++)
+        bytes = send(sock, (char *)&msg[i], sizeof(data), 0);
+        if (bytes == SOCKET_ERROR)
         {
-            std::cout << a.array[i] << " ";
+            std::cout << "Couldn't send msg: " << i << std::endl;
+            WSACleanup();
+            return 4;
         }
-    } 
-   
+        else
+        {
+            std::cout << "Msg:" << i << " has been sent" << std::endl;
+        }
+    }
+    for (int i = 0; i < DataBits; i++)
+    {
+        bytes = recv(sock, (char *)&msg[i], sizeof(data), 0);
+        if (bytes == SOCKET_ERROR)
+        {
+            std::cout << "Couldn't get sorted msg num: " << i << std::endl;
+            WSACleanup();
+            return 5;
+        }
+        else
+        {
+            std::cout << "Got sorted msg  num: " << i << std::endl;
+        }
+    }
+    n = 1000;
+    std::cout << "Sorted array: " << std::endl;
+    for (size_t i = 0; i < DataBits; i++)
+    {
+        if (i == DataBits - 1)
+        {
+            n = size % 1000;
+        }
+        for (int j = 0; j < n; j++)
+        {
+            std::cout << msg[i].array[j] << " ";
+        }
+    }
     closesocket(sock);
     WSACleanup();
     return 0;
