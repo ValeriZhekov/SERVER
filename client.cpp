@@ -51,11 +51,11 @@ int main()
     {
         std::cout << "Connected, can start sending and reveiving data" << std::endl;
     }
-    size_t size = 12199;
+    size_t size = 19;
     int *arr = new int[size];
     for (size_t i = 0; i < size; i++)
     {
-        arr[i] = rand() % 1000 - 500;
+        arr[i] = rand() % 2000 - 1000;
         std::cout<<arr[i]<<" ";
     }
     size_t DataBits = ceil(double(size) / 1000);
@@ -70,20 +70,6 @@ int main()
         }
         msg[i] = data(arr + i * 1000, j);
     }
-    int n = 1000;
-    std::cout << "array: " << std::endl;
-    for (size_t i = 0; i < DataBits; i++)
-    {
-        if (i == DataBits - 1)
-        {
-            n = size % 1000;
-        }
-        for (int j = 0; j < n; j++)
-        {
-            std::cout << msg[i].array[j] << " ";
-        }
-    }
-    std::cout<<std::endl;
     int bytes = send(sock, (char *)&size, sizeof(size_t), 0);
     if (bytes == SOCKET_ERROR)
     {
@@ -123,7 +109,7 @@ int main()
             std::cout << "Got sorted msg  num: " << i << std::endl;
         }
     }
-    n = 1000;
+    int n = 1000;
     std::cout << "Sorted array: " << std::endl;
     for (size_t i = 0; i < DataBits; i++)
     {
