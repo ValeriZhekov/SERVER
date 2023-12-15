@@ -39,7 +39,7 @@ int main()
     }
     sockaddr_in adr;
     adr.sin_family = AF_INET;
-    adr.sin_addr.s_addr = inet_addr("127.0.0.1"); // leko sus
+    adr.sin_addr.s_addr = inet_addr("127.0.0.1"); 
     adr.sin_port = htons(29171);
     if (connect(sock, (SOCKADDR *)&adr, sizeof(adr)) == SOCKET_ERROR)
     {
@@ -51,16 +51,16 @@ int main()
     {
         std::cout << "Connected, can start sending and reveiving data" << std::endl;
     }
-    size_t size = 19;
+    size_t size = 20019; //razmer na masiva za sortirane
     int *arr = new int[size];
     for (size_t i = 0; i < size; i++)
     {
         arr[i] = rand() % 2000 - 1000;
         std::cout<<arr[i]<<" ";
-    }
-    size_t DataBits = ceil(double(size) / 1000);
+    } //zapulvame go s proizvolni chisla
+    size_t DataBits = ceil(double(size) / 1000); //broi chasti danni (vsqka sudurja 1000 elemnta ot tip int)
     std::cout << "N: " << DataBits << std::endl;
-    data *msg = new data[DataBits];
+    data *msg = new data[DataBits]; //tuk pazim dannite
     int j = 1000;
     for (size_t i = 0; i < DataBits; i++)
     {
@@ -69,7 +69,7 @@ int main()
             j = size % 1000;
         }
         msg[i] = data(arr + i * 1000, j);
-    }
+    } 
     int bytes = send(sock, (char *)&size, sizeof(size_t), 0);
     if (bytes == SOCKET_ERROR)
     {
@@ -81,7 +81,7 @@ int main()
     {
         std::cout << "Size of array has been sent" << std::endl;
     }
-    for (int i = 0; i < DataBits; i++)
+    for (int i = 0; i < DataBits; i++) //izprashtame edin po edin elementite 
     {
         bytes = send(sock, (char *)&msg[i], sizeof(data), 0);
         if (bytes == SOCKET_ERROR)
@@ -95,7 +95,7 @@ int main()
             std::cout << "Msg:" << i << " has been sent" << std::endl;
         }
     }
-    for (int i = 0; i < DataBits; i++)
+    for (int i = 0; i < DataBits; i++) //poluchavame gi edin po edin
     {
         bytes = recv(sock, (char *)&msg[i], sizeof(data), 0);
         if (bytes == SOCKET_ERROR)
@@ -121,8 +121,8 @@ int main()
         {
             std::cout << msg[i].array[j] << " ";
         }
-    }
+    } //izkarvame sortiranite elementi na ekrana
     closesocket(sock);
     WSACleanup();
-    return 0;
+    return 0; //gcc server.cpp -o server.exe -lstdc++  -lws2_32 -pthread 
 }

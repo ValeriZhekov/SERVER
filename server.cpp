@@ -180,9 +180,9 @@ int main()
     {
         std::cout << "Size of array is: " << size << std::endl;
     }
-    size_t DataBits = ceil(double(size) / 1000);
+    size_t DataBits = ceil(double(size) / 1000); //broi chasti danni(po 1000 elementa int v edin)
     data *msg = new data[DataBits];
-    for (size_t i = 0; i < DataBits; i++)
+    for (size_t i = 0; i < DataBits; i++) //poluchavame gi edin po edin
     {
         bytes = recv(acceptSock, (char *)&msg[i], sizeof(data), 0);
         if (bytes == SOCKET_ERROR)
@@ -197,7 +197,7 @@ int main()
         }
     }
     int n = 1000, *arr = new int[size];
-    for (size_t i = 0; i < DataBits; i++)
+    for (size_t i = 0; i < DataBits; i++) //mestim gi v int masiv
     {
         if (i == DataBits - 1)
         {
@@ -210,7 +210,7 @@ int main()
     }
     clock_t t1, t2;
     t1 = clock();
-    fastMergeSort(arr, size);
+    fastMergeSort(arr, size); //sortirame
     t2 = clock();
     std::cout << std::endl
               << "Sort time: " << (t2 - t1) / (double)CLOCKS_PER_SEC << std::endl;
@@ -222,8 +222,8 @@ int main()
             j = size % 1000;
         }
         msg[i] = data(arr + i * 1000, j);
-    }
-    for (size_t i = 0; i < DataBits; i++)
+    } //premestvame otnovo v tip data
+    for (size_t i = 0; i < DataBits; i++) //izprashtame gi obratno sortirani
     {
         bytes = send(acceptSock, (char *)&msg[i], sizeof(data), 0);
         if (bytes == SOCKET_ERROR)
@@ -236,7 +236,7 @@ int main()
         {
             std::cout << "Sorted array num: " << i << " has been sent" << std::endl;
         }
-    }
+    } 
     closesocket(sock);
     WSACleanup();
     return 0;
